@@ -1,43 +1,19 @@
-const http = require("http");
-const fs = require("fs");
+const express = require("express");
 const path = require("path");
 
-const port = process.env.PORT || 3000;
+const app = express();
 
-const server = http.createServer((req, res) => {
-    let filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
-    let extname = path.extname(filePath);
-    let contentType = 'text/html';
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
 
-    // Set the appropriate content type for different file extensions
-    switch (extname) {
-        case '.js':
-            contentType = 'text/javascript';
-            break;
-        case '.css':
-            contentType = 'text/css';
-            break;
-    }
-
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            if (err.code === 'ENOENT') {
-                // File not found
-                res.writeHead(404);
-                res.end('404 Not Found');
-            } else {
-                // Server error
-                res.writeHead(500);
-                res.end(`Server Error: ${err.code}`);
-            }
-        } else {
-            // Success
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
-        }
-    });
+// Route to serve the index.html file
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "index.html"));
 });
 
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}/`);
+// Define other routes or API endpoints as needed
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
